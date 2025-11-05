@@ -1,4 +1,6 @@
 using CafezinhoELivrosApi.Data;
+using CafezinhoELivrosApi.Data.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,14 +29,26 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         new MySqlServerVersion(new Version(8, 0, 0))
     ));
 
+builder.Services.AddIdentity<User, Role>()
+       .AddEntityFrameworkStores<AppDbContext>();
+
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
+
+    await SeedAdmin.CreateAdmin(userManager, roleManager);
+    await SeedRoles.CreateRoles(roleManager);
+}
 
 app.UseCors("AllowAll");
 
 // Configure the HTTP request pipeline.
 app.UseHttpsRedirection();
-//app.UseAuthentication();   // valida o token/cookie
-//app.UseAuthorization(); // checa permissoes
+app.UseAuthentication();   // valida o token/cookie
+app.UseAuthorization(); // checa permissoes
 
 if (app.Environment.IsDevelopment())
 {
