@@ -15,6 +15,7 @@ public class UserMapping: IEntityTypeConfiguration<User>
         builder.Property(u => u.Description).HasMaxLength(300);
         builder.Property(u => u.City).HasMaxLength(20);
         builder.Property(u => u.State).HasMaxLength(20);
+        builder.Property(u => u.BirthDate).IsRequired();
 
         builder.HasOne(u => u.Role)
                .WithMany()

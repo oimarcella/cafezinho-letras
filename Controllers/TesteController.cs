@@ -1,15 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace CafezinhoELivrosApi.Controllers
+namespace CafezinhoELivrosApi.Controllers;
+
+[ApiController]
+[Route("/")]
+public class TesteController:ControllerBase
 {
-    [ApiController]
-    [Route("/")]
-    public class TesteController:ControllerBase
+    [HttpGet]
+    public IActionResult Get()
     {
-        [HttpGet]
-        public IActionResult Get()
-        {
-            return Ok("Cafezinho&Letras está rodando!!");
-        }
+        return Ok("Backend do Cafezinho&Letras está rodando!!");
     }
 }

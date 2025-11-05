@@ -1,12 +1,14 @@
-using CafezinhoELivrosApi.Data;
+﻿using CafezinhoELivrosApi.Data;
 using CafezinhoELivrosApi.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using CafezinhoELivrosAPI.Data.Seeds;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-//builder.Services.AddOpenApi();//N�o vou usar da openapi
+//builder.Services.AddOpenApi();//Não vou usar da openapi
 
 // CORS liberado
 builder.Services.AddCors(options =>
@@ -20,28 +22,32 @@ builder.Services.AddCors(options =>
 builder.WebHost.UseUrls("http://+:5027");
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer(); // Para o Swagger descobrir os endpoints
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    options.IncludeXmlComments(xmlPath);
+});
 
 // Configurando conexao ao banco de dados
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(
         builder.Configuration.GetConnectionString("DefaultConnection"),
-        new MySqlServerVersion(new Version(8, 0, 0))
-    ));
+        new MySqlServerVersion(new Version(8, 0, 0)),
+        mySqlOptions => mySqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(10),
+            errorNumbersToAdd: null
+        )
+    )
+);
 
 builder.Services.AddIdentity<User, Role>()
        .AddEntityFrameworkStores<AppDbContext>();
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
-
-    await SeedAdmin.CreateAdmin(userManager, roleManager);
-    await SeedRoles.CreateRoles(roleManager);
-}
+//builder.Services.AddHostedService<SeedHostedService>(); // Tentativa de executar seeds de roles e admin user ao iniciar código
 
 app.UseCors("AllowAll");
 
@@ -52,13 +58,14 @@ app.UseAuthorization(); // checa permissoes
 
 if (app.Environment.IsDevelopment())
 {
-    //app.MapOpenApi(); //N�o vou usar da openapi
+    //app.MapOpenApi(); //Não vou usar da openapi
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.MapControllers();
+app.UseSwagger();
+app.UseSwaggerUI();
 
-// Rotas
+app.MapControllers();
 
 app.Run();

@@ -1,5 +1,4 @@
 ---
-version: "3.9"
 services:
   api:
     build:
@@ -12,7 +11,7 @@ services:
       - db
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection="server=db;port=3306;database=cafezinho_letras_db;user=root;password=#2025cafezinho"
+      - ConnectionStrings__DefaultConnection=Server=db;Port=3306;Database=cafezinho_letras_db;User=root;Password=_2025cafezinho
     networks:
       - cafezinho-network
   db:
@@ -20,7 +19,7 @@ services:
     container_name: cafezinho-letras-db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: "#2025cafezinho"
+      MYSQL_ROOT_PASSWORD: _2025cafezinho
       MYSQL_DATABASE: cafezinho_letras_db
     ports:
       - 3306:3306
