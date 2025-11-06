@@ -17,7 +17,7 @@ Projeto criado por hobby, com foco em aprendizado e boas práticas — incluindo
 
 ```
 #Clone o repositório
-git clone https://github.com/seu-usuario/CafezinhoELivrosApi.git
+git clone https://github.com/oimarcella/cafezinho-letras
 
 # Acesse a pasta do projeto
 cd CafezinhoELivrosApi
@@ -31,7 +31,10 @@ docker compose up -d
 
 ### 🖼️ Prints do Projeto
 🔹 Dashboard do Railway
+Aqui são 2 serviços do Railway conectados, o serviço da API conectado ao serviço do bando de dados. A API rodando em : https://cafezinho-letras-production.up.railway.app/
 ![Dashboard do Railway exibindo o serviço de banco de dados do MySql na aba de tabelas](Content/Docs/railwaymysql.png)
+
+🔹 Documentação no Swagger (com alguns endpoints...)
 ![Swagger documentando a API com alguns endpoint já criados](Content/Docs/swagger.png)
 
 ### 💬 Contato
