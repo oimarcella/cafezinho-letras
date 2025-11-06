@@ -2,3 +2,4 @@
 obj/
 .idea/
 bin/
+appsettings.Development.json

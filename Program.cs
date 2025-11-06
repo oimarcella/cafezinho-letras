@@ -3,11 +3,11 @@ using CafezinhoELivrosApi.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using CafezinhoELivrosAPI.Data.Seeds;
+using Microsoft.OpenApi.Models;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 //builder.Services.AddOpenApi();//Não vou usar da openapi
 
 // CORS liberado
@@ -22,8 +22,15 @@ builder.Services.AddCors(options =>
 builder.WebHost.UseUrls("http://+:5027");
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer(); // Para o Swagger descobrir os endpoints
+
 builder.Services.AddSwaggerGen(options =>
 {
+    options.SwaggerDoc("v1", new OpenApiInfo
+     {
+         Title = "Api do Cafezinho & Livros",
+         Version = "1.0"
+     });
+
     var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     options.IncludeXmlComments(xmlPath);
@@ -46,6 +53,18 @@ builder.Services.AddIdentity<User, Role>()
        .AddEntityFrameworkStores<AppDbContext>();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var logger = services.GetRequiredService<ILogger<AppDbContext>>();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    logger.LogInformation("\n ==== Rodando migrações automáticas");
+    // Vai tentar executar as migracoes quando o app iniciar
+    db.Database.Migrate();
+    logger.LogInformation("Finalizada a execução de migrações ==== \n");
+}
 
 //builder.Services.AddHostedService<SeedHostedService>(); // Tentativa de executar seeds de roles e admin user ao iniciar código
 

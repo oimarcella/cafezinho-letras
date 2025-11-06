@@ -6,9 +6,12 @@ namespace CafezinhoELivrosApi.Controllers;
 [Route("/")]
 public class TesteController:ControllerBase
 {
+    /// <summary>
+    /// Hello world. Apenas para testar se a API está rodando
+    /// </summary>
     [HttpGet]
     public IActionResult Get()
     {
-        return Ok("Backend do Cafezinho&Letras está rodando!!");
+        return Ok("API do Cafezinho&Letras está rodando!!");
     }
 }
