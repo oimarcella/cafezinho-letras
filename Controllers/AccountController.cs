@@ -13,10 +13,12 @@ namespace CafezinhoELivrosApi.Controllers
     {
         private readonly AppDbContext _dbContext;
         private readonly RoleManager<Role>  _roleManager;
+        private ILogger<AccountController> _logger;
 
-        public AccountController(AppDbContext context, RoleManager<Role> roleManager) {
+        public AccountController(AppDbContext context, RoleManager<Role> roleManager, ILogger<AccountController> logger) {
             _dbContext = context;
             _roleManager = roleManager;
+            _logger = logger;
         }
 
         /// <summary>
@@ -76,6 +78,7 @@ namespace CafezinhoELivrosApi.Controllers
                 return Ok(response);
             }catch(Exception ex)
             {
+                _logger.LogError($"AccountController ~ Post Index  \n {ex}");
                 return StatusCode(500, ex.Message);
             }
         }
@@ -85,22 +88,32 @@ namespace CafezinhoELivrosApi.Controllers
         /// Deleta a conta de um usuário
         /// </summary>
         /// <param name="id">Id da conta que vai ser deletada</param>
+        /// <returns>Retorna mensagem de sucesso, apenas status de sucesso.</returns>
         [HttpDelete("{id}")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Delete([FromRoute] string id)
         {
+            try {
+                if (id == null)
+                    return BadRequest("Id de usuário informado inválido.");
 
-            if (id == null)
-                return BadRequest("Id de usuário informado inválido.");
+                var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == id);
 
-            var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == id);
+                if (user == null)
+                    return BadRequest("Usuário não existe.");
 
-            if (user == null)
-                return BadRequest("Usuário não existe.");
+                _dbContext.Remove(user);
+                await _dbContext.SaveChangesAsync();
 
-            _dbContext.Remove(user);
-            await _dbContext.SaveChangesAsync();
-
-            return Ok("A conta foi deletada!");
+                return Ok("A conta foi deletada!");
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError($"AccountController ~ Delete  \n {ex}");
+                return StatusCode(500, ex.Message );
+            }
         }
     }
 }
