@@ -11,7 +11,10 @@ namespace CafezinhoELivrosApi.DTOs
         [Required(ErrorMessage = "Informe um nome de usuário")]
         [MinLength(3, ErrorMessage = "Nome de usuário precisa conter pelo menos 3 letras")]
         public string UserName { get; set; }
-
+        
+        [Required(ErrorMessage = "Informe uma senha")]
+        [MinLength(6, ErrorMessage = "Senha precisa conter pelo menos 6 letras")]
+        public string Password { get; set; }
 
         [Required(ErrorMessage = "Informe um e-mail")]
         [EmailAddress(ErrorMessage = "E-mail inválido")]

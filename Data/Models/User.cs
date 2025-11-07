@@ -12,6 +12,6 @@ public class User: IdentityUser
     public DateTime CreatedAt{ get; set; } = DateTime.Now;
     public string? City { get; set; }
     public string? State { get; set; }
-    public string RoleId { get; set; } = null;
-    public Role Role { get; set; } = null;
+    public string? RoleId { get; set; } = null;
+    public Role? Role { get; set; } = null;
 }

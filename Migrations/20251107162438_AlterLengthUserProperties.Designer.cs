@@ -4,6 +4,7 @@ using CafezinhoELivrosApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CafezinhoELivrosApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251107162438_AlterLengthUserProperties")]
+    partial class AlterLengthUserProperties
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -116,6 +119,7 @@ namespace CafezinhoELivrosApi.Migrations
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("RoleId")
+                        .IsRequired()
                         .HasColumnType("varchar(255)");
 
                     b.Property<string>("SecurityStamp")
@@ -257,7 +261,8 @@ namespace CafezinhoELivrosApi.Migrations
                     b.HasOne("CafezinhoELivrosApi.Data.Models.Role", "Role")
                         .WithMany()
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Role");
                 });

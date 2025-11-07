@@ -13,11 +13,16 @@ namespace CafezinhoELivrosApi.Controllers
     {
         private readonly AppDbContext _dbContext;
         private readonly RoleManager<Role>  _roleManager;
+        private readonly UserManager<User>  _userManager;
         private ILogger<AccountController> _logger;
 
-        public AccountController(AppDbContext context, RoleManager<Role> roleManager, ILogger<AccountController> logger) {
+        public AccountController(AppDbContext context,
+            RoleManager<Role> roleManager, 
+            UserManager<User> userManager, 
+            ILogger<AccountController> logger) {
             _dbContext = context;
             _roleManager = roleManager;
+            _userManager = userManager;
             _logger = logger;
         }
 
@@ -37,6 +42,9 @@ namespace CafezinhoELivrosApi.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
                 if (user == null)
                     return BadRequest("Usuário informado inválido");
 
@@ -55,9 +63,17 @@ namespace CafezinhoELivrosApi.Controllers
                     Description = user.Description,
                     RoleId = await _roleManager.Roles.Where(r => r.Name == ERoles.Leitor.ToString()).Select(r => r.Id).FirstOrDefaultAsync()
                 };
+                var result = await _userManager.CreateAsync(newUser, user.Password);
 
-                var result = await _dbContext.AddAsync(newUser);
-                await _dbContext.SaveChangesAsync();
+                if (!result.Succeeded)
+                {
+                    var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                    return BadRequest($"Erro ao criar usuário: {errors}");
+                }
+                    
+                await _userManager.AddToRoleAsync(newUser, ERoles.Leitor.ToString());
+
+                var roleName = (await _userManager.GetRolesAsync(newUser)).FirstOrDefault();
 
                 // Ver AutoMapper
                 var response = new UserResponseDTO
@@ -72,14 +88,17 @@ namespace CafezinhoELivrosApi.Controllers
                     Description = newUser.Description,
                     City = newUser.City,
                     State = newUser.State,
-                    Role = newUser.Role,
+                    Role = new Role
+                    {
+                        Name = roleName
+                    },
                 }; 
 
                 return Ok(response);
             }catch(Exception ex)
             {
-                _logger.LogError($"AccountController ~ Post Index  \n {ex}");
-                return StatusCode(500, ex.Message);
+                _logger.LogError($"\n AccountController ~ Post Index -->  \n {ex}\n");
+                return StatusCode(500, $"{ex}");
             }
         }
 
