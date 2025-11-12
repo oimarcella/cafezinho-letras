@@ -1,10 +1,13 @@
+# docker-compose para rodar localmente/dev com hot-reload
 ---
 services:
   api:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    #build:
+      #context: .
+      #dockerfile: Dockerfile
+    image: mcr.microsoft.com/dotnet/sdk:9.0
     container_name: cafezinho-api
+    working_dir: /app
     ports:
       - 5027:5027
     depends_on:
@@ -14,6 +17,9 @@ services:
       - ConnectionStrings__DefaultConnection=Server=db;Port=3306;Database=cafezinho_letras_db;User=root;Password=_2025cafezinho
     networks:
       - cafezinho-network
+    volumes:
+      -  ./:/app
+    command: dotnet watch run --urls=http://+:5027
   db:
     image: mysql:8.0
     container_name: cafezinho-letras-db

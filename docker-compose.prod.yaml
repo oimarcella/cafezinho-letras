@@ -1,0 +1,35 @@
+---
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cafezinho-api
+    ports:
+      - 5027:5027
+    depends_on:
+      - db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=db;Port=3306;Database=cafezinho_letras_db;User=root;Password=_2025cafezinho
+    networks:
+      - cafezinho-network
+  db:
+    image: mysql:8.0
+    container_name: cafezinho-letras-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: _2025cafezinho
+      MYSQL_DATABASE: cafezinho_letras_db
+    ports:
+      - 3306:3306
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./CafezinhoELivrosApi:/app
+    networks:
+      - cafezinho-network
+networks:
+  cafezinho-network:
+    driver: bridge
+volumes:
+  db_data: null

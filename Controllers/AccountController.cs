@@ -27,6 +27,76 @@ namespace CafezinhoELivrosApi.Controllers
         }
 
         /// <summary>
+        /// Atualiza dados parciais do usuário
+        /// </summary>
+        ///<remarks>
+        /// Permite que o usuário altere alguns campos de seu cadastro. Eles são: Name,UserName, Description, CurrentThought, City, State.
+        ///</remarks>
+        /// <param name="user">Dados do usuário a ser atualizado.</param>
+        /// <returns>Retorna o usuário atualizado.</returns>
+        [HttpPatch("{id}")]
+        [ProducesResponseType(typeof(UserResponseDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> Index([FromBody] UpdateUserPartialDTO user, [FromRoute] string id)
+        {
+            try
+            {
+                _logger.LogError("OBA");
+
+                var userFound = await _dbContext.Users
+                    .Include(u => u.Role)
+                    .FirstOrDefaultAsync(u => u.Id == id);
+                if (userFound == null)
+                    return NotFound("Usuário não encontrado.");
+
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+
+                userFound.Name = user.Name?? userFound.Name;
+                userFound.UserName = user.UserName?? userFound.UserName;
+                userFound.CurrentThought = user.CurrentThought?? userFound.CurrentThought;
+                userFound.Description = user.Description?? userFound.Description;
+                userFound.City = user.City?? userFound.City;
+                userFound.State = user.State?? userFound.State;
+
+
+                var result = await _dbContext.SaveChangesAsync();
+                if (result == 0)
+                {
+                    return BadRequest($"Não foi possível atualizar usuário");
+                }
+                else if (result > 1){
+                    _logger.LogCritical($"\n\n ATENÇÃO - {result} foram atualizados, onde deveria ser somente 1.\n");
+                }
+
+                var response = new UserResponseDTO
+                {
+                    Id = new Guid(userFound.Id),
+                    Name = userFound.Name,
+                    UserName = userFound.UserName,
+                    Email = userFound.Email,
+                    BirthDate = userFound.BirthDate,
+                    CreatedAt = userFound.CreatedAt,
+                    CurrentThought = userFound.CurrentThought,
+                    Description = userFound.Description,
+                    City = userFound.City,
+                    State = userFound.State,
+                    Role = userFound.Role
+                };
+
+                return Ok(response);
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError($"\n AccountController ~ PATCH Index -->  \n {ex}\n");
+                return StatusCode(500, $"{ex}");
+            }
+        }
+
+
+        /// <summary>
         /// Cria um usuário
         /// </summary>
         ///<remarks>
