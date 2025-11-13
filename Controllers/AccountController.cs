@@ -27,17 +27,16 @@ namespace CafezinhoELivrosApi.Controllers
         }
 
 
-        //Isso é para ser no controller de usuário...
-        [HttpGet]
         /// <summary>
         /// Retorna usuários paginados
         /// </summary>
-        ///<remarks>
+        /// <remarks>
         /// Retorna os usuários de forma páginada.
-        ///</remarks>
-        /// <param name="page">Página</param>
-        /// <param name="quantity">Quantidade de registros</param>
+        /// </remarks>
+        /// <param name="page">Número da página  (padrão: 1)</param>
+        /// <param name="quantity">Quantidade de registros desejados  (padrão: 15)</param>
         /// <returns>Retorna os usuários cadastrados.</returns>
+        [HttpGet]
         public async Task<IActionResult> Index([FromQuery] int page = 1, int? quantity = 15){
             try{
                 
