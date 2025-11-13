@@ -26,6 +26,36 @@ namespace CafezinhoELivrosApi.Controllers
             _logger = logger;
         }
 
+
+        //Isso é para ser no controller de usuário...
+        [HttpGet]
+        /// <summary>
+        /// Retorna usuários paginados
+        /// </summary>
+        ///<remarks>
+        /// Retorna os usuários de forma páginada.
+        ///</remarks>
+        /// <param name="page">Página</param>
+        /// <param name="quantity">Quantidade de registros</param>
+        /// <returns>Retorna os usuários cadastrados.</returns>
+        public async Task<IActionResult> Index([FromQuery] int page = 1, int? quantity = 15){
+            try{
+                
+                var users = await _dbContext.Users
+                .Include(x => x.Role)
+                .Skip((page - 1) * quantity.Value)
+                .Take(quantity.Value)
+                .ToListAsync();
+
+                return Ok(users);
+            }
+            catch(Exception ex){
+                _logger.LogError($"\n AccountController ~ Index ~ GET : Aconteceu um problema ao buscar os usuários \n {ex} \n");
+                Console.WriteLine($"Aconteceu um problema ao buscar os usuários {ex.Message}");
+                return StatusCode(500, ex.Message);
+            }
+        }
+        
         /// <summary>
         /// Atualiza dados parciais do usuário
         /// </summary>
@@ -42,8 +72,6 @@ namespace CafezinhoELivrosApi.Controllers
         {
             try
             {
-                _logger.LogError("OBA");
-
                 var userFound = await _dbContext.Users
                     .Include(u => u.Role)
                     .FirstOrDefaultAsync(u => u.Id == id);
